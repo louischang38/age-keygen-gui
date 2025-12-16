@@ -1,7 +1,7 @@
 # Age Key Generator (age-keygen GUI)
 
 ---
-
+![ScreenShot](https://github.com/louischang38/age-keygen-gui/blob/main/screenshot/screenshot.png)
 
 ### Introduction
 
