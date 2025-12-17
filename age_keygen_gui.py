@@ -15,6 +15,16 @@ from PySide6.QtCore import Qt, QThread, Signal, QObject, QTimer, QSize
 
 import darkdetect
 
+
+# ==========================================
+# 🔧 Subprocess helper (NO console flash on Windows)
+# ==========================================
+def run_hidden_subprocess(args, **kwargs):
+    if os.name == "nt":
+        kwargs["creationflags"] = 0x08000000  # CREATE_NO_WINDOW
+    return subprocess.run(args, **kwargs)
+    
+    
 # ==========================================
 # 🎨 Theme Manager
 # ==========================================
@@ -158,7 +168,7 @@ class KeyGenerationWorker(QObject):
         try:
             self.progress.emit(self.strings["STATUS_RUNNING"])
             # Run age-keygen tool
-            result = subprocess.run([self.age_keygen_path], capture_output=True, text=True, timeout=30, check=True)
+            result = run_hidden_subprocess([self.age_keygen_path], capture_output=True, text=True, timeout=30, check=True)
             output = result.stdout + result.stderr
             
             # Extract Private Key
@@ -208,7 +218,7 @@ class KeyGenerationWorker(QObject):
 
     def _derive_public_key(self, private_key):
         try:
-            result = subprocess.run([self.age_keygen_path, '-y'], input=private_key.encode('utf-8'),
+            result = run_hidden_subprocess([self.age_keygen_path], input=private_key.encode('utf-8'),
                                      capture_output=True, text=True, timeout=10, check=True)
             return result.stdout.strip()
         except Exception:
@@ -501,7 +511,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = AgeKeyGeneratorWindow()    
  
-    # Windows Dark Mode Fix (Remains in Python for system integration)
+    # Windows Dark Mode Fix 
     if platform.system() == "Windows":
         try:
             from ctypes import windll        
